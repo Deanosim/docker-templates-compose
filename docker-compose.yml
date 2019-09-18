@@ -1,0 +1,48 @@
+version: "3.5"
+
+services:
+  monolithic:
+    image: lancachenet/monolithic:latest
+    container_name: lancache-monolithic
+    ports:
+      - "80:80"
+    volumes:
+      - "/mnt/user/steamcache/cache/:/cache/data"
+      - "/mnt/user/appdata/steamcache/logs/:/data/logs"
+    networks:
+      lancache:
+    env_file:
+      - "./monolithic.env"
+
+  sniproxy:
+    image: lancachenet/sniproxy:latest
+    container_name: lancache-sniproxy
+    ports:
+      - "443:443"
+    networks:
+      lancache:
+
+  lancache-dns:
+    image: lancachenet/lancache-dns
+    container_name: lancache-dns
+    ports:
+      - "53:53"
+      - "53:53/udp"
+    networks:
+      lancache:
+      dns:
+    env_file:
+      - "./lancache-dns.env"
+
+networks:
+  br0:
+    external: true
+    name: br0
+  
+  dns:
+    external: true
+    name: dns
+
+  lancache:
+    name: lancache
+    driver: bridge
